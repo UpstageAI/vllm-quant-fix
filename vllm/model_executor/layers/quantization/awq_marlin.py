@@ -250,7 +250,7 @@ class AWQMarlinLinearMethod(LinearMethodBase):
             layer.output_size_per_partition, device)
 
         # Repack weights from AWQ format to marlin format.
-        if layer.qweight.dtype in [torch.float16, torch.bfloat16, torch.float32]:
+        if layer.qweight.shape[0] == layer.input_size_per_partition:
             marlin_qweight = ops.awq_marlin_repack(
                 layer.qweight,
                 size_k=layer.input_size_per_partition,
