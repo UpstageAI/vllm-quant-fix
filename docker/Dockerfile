@@ -14,6 +14,9 @@ ARG PYTHON_VERSION=3.12
 ARG TARGETPLATFORM
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN sed -i 's|http://archive.ubuntu.com|http://mirror.kakao.com|g' /etc/apt/sources.list
+RUN sed -i 's|http://security.ubuntu.com|http://mirror.kakao.com|g' /etc/apt/sources.list
+
 # Install Python and other dependencies
 RUN echo 'tzdata tzdata/Areas select America' | debconf-set-selections \
     && echo 'tzdata tzdata/Zones/America select Los_Angeles' | debconf-set-selections \
@@ -193,6 +196,9 @@ SHELL ["/bin/bash", "-c"]
 
 RUN PYTHON_VERSION_STR=$(echo ${PYTHON_VERSION} | sed 's/\.//g') && \
     echo "export PYTHON_VERSION_STR=${PYTHON_VERSION_STR}" >> /etc/environment
+
+RUN sed -i 's|http://archive.ubuntu.com|http://mirror.kakao.com|g' /etc/apt/sources.list
+RUN sed -i 's|http://security.ubuntu.com|http://mirror.kakao.com|g' /etc/apt/sources.list
 
 # Install Python and other dependencies
 RUN echo 'tzdata tzdata/Areas select America' | debconf-set-selections \
