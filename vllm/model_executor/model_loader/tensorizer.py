@@ -27,6 +27,9 @@ from vllm.logger import init_logger
 from vllm.model_executor.layers.vocab_parallel_embedding import (
     VocabParallelEmbedding)
 from vllm.utils import FlexibleArgumentParser, PlaceholderModule
+from vllm.model_executor.layers.quantization.base_config import QuantizeMethodBase  # TENSORIZER_ADD
+from vllm.model_executor.model_loader.utils import device_loading_context  # TENSORIZER_ADD
+
 
 try:
     from tensorizer import (DecryptionParams, EncryptionParams,
@@ -455,6 +458,12 @@ class TensorizerAgent:
                     end - start, per_second)
         logger.info("Memory usage before: %s", before_mem)
         logger.info("Memory usage after: %s", after_mem)
+
+        for name, module in self.model.named_modules():  # TENSORIZER_ADD
+            quant_method = getattr(module, "quant_menthod", None)
+            if isinstance(quant_method, QuantizeMethodBase):
+                with device_loading_context(module, next(module.parameters()).device):
+                    quant_method.process_weights_after_loading(module)
 
         self._check_tensors_on_meta_device()
         self._resize_lora_embeddings()

@@ -270,29 +270,30 @@ class AWQMarlinLinearMethod(LinearMethodBase):
         # Allocate marlin workspace
         layer.workspace = marlin_make_workspace_new(device)
 
-        # Repack weights from AWQ format to marlin format.
-        marlin_qweight = ops.awq_marlin_repack(
-            layer.qweight,
-            size_k=layer.input_size_per_partition,
-            size_n=layer.output_size_per_partition,
-            num_bits=self.quant_config.quant_type.size_bits)
-        replace_parameter(layer, "qweight", marlin_qweight)
+        if layer.qweight.shape[0] == layer.input_size_per_partition:  # TENSORIZER_ADD
+            # Repack weights from AWQ format to marlin format.
+            marlin_qweight = ops.awq_marlin_repack(
+                layer.qweight,
+                size_k=layer.input_size_per_partition,
+                size_n=layer.output_size_per_partition,
+                num_bits=self.quant_config.quant_type.size_bits)
+            replace_parameter(layer, "qweight", marlin_qweight)
 
-        # Permute scales from AWQ format to marlin format.
-        marlin_scales = marlin_permute_scales(
-            layer.scales,
-            size_k=layer.input_size_per_partition,
-            size_n=layer.output_size_per_partition,
-            group_size=self.quant_config.group_size)
-        replace_parameter(layer, "scales", marlin_scales)
+            # Permute scales from AWQ format to marlin format.
+            marlin_scales = marlin_permute_scales(
+                layer.scales,
+                size_k=layer.input_size_per_partition,
+                size_n=layer.output_size_per_partition,
+                group_size=self.quant_config.group_size)
+            replace_parameter(layer, "scales", marlin_scales)
 
-        # Permute zero-points from AWQ format to marlin format.
-        marlin_zp = awq_to_marlin_zero_points(
-            layer.qzeros,
-            size_k=layer.num_groups,
-            size_n=layer.output_size_per_partition,
-            num_bits=self.quant_config.quant_type.size_bits)
-        replace_parameter(layer, "qzeros", marlin_zp)
+            # Permute zero-points from AWQ format to marlin format.
+            marlin_zp = awq_to_marlin_zero_points(
+                layer.qzeros,
+                size_k=layer.num_groups,
+                size_n=layer.output_size_per_partition,
+                num_bits=self.quant_config.quant_type.size_bits)
+            replace_parameter(layer, "qzeros", marlin_zp)
 
         # Not-used
         layer.g_idx = marlin_make_empty_g_idx(device)
