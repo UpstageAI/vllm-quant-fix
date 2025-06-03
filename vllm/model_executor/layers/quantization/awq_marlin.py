@@ -270,7 +270,7 @@ class AWQMarlinLinearMethod(LinearMethodBase):
         # Allocate marlin workspace
         layer.workspace = marlin_make_workspace_new(device)
 
-        if layer.qweight.shape[0] == layer.input_size_per_partition:  # TENSORIZER_ADD
+        if layer.qweight.dtype in [torch.float16, torch.bfloat16, torch.float32]:
             # Repack weights from AWQ format to marlin format.
             marlin_qweight = ops.awq_marlin_repack(
                 layer.qweight,

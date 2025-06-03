@@ -460,8 +460,10 @@ class TensorizerAgent:
         logger.info("Memory usage after: %s", after_mem)
 
         for name, module in self.model.named_modules():  # TENSORIZER_ADD
-            quant_method = getattr(module, "quant_menthod", None)
-            if isinstance(quant_method, QuantizeMethodBase):
+            if (
+                hasattr(module, "quant_method")
+                and hasattr(module.quant_method, "process_weights_after_loading")
+            ):
                 with device_loading_context(module, next(module.parameters()).device):
                     quant_method.process_weights_after_loading(module)
 
