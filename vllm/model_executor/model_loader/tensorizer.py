@@ -465,6 +465,7 @@ class TensorizerAgent:
                 and hasattr(module.quant_method, "process_weights_after_loading")
             ):
                 with device_loading_context(module, next(module.parameters()).device):
+                    quant_method = getattr(module, "quant_method")
                     quant_method.process_weights_after_loading(module)
 
         self._check_tensors_on_meta_device()
