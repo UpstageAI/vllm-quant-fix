@@ -76,6 +76,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system -r requirements/cuda.txt \
     --extra-index-url https://download.pytorch.org/whl/cu$(echo $CUDA_VERSION | cut -d. -f1,2 | tr -d '.')
 
+# NOTE: upgrade pytorch_triton 3.3.1 due to support blackwell arch. (see: https://github.com/triton-lang/triton/pull/6771)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system --upgrade triton==3.3.1
+
 # cuda arch list used by torch
 # can be useful for both `dev` and `test`
 # explicitly set the list to avoid issues with torch 2.2
@@ -102,6 +106,10 @@ ENV UV_INDEX_STRATEGY="unsafe-best-match"
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system -r requirements/build.txt \
     --extra-index-url https://download.pytorch.org/whl/cu$(echo $CUDA_VERSION | cut -d. -f1,2 | tr -d '.')
+
+# NOTE: upgrade pytorch_triton 3.3.1 due to support blackwell arch. (see: https://github.com/triton-lang/triton/pull/6771)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system --upgrade triton==3.3.1
 
 COPY . .
 ARG GIT_REPO_CHECK=0
@@ -248,6 +256,10 @@ RUN --mount=type=bind,from=build,src=/workspace/dist,target=/vllm-workspace/dist
     uv pip install --system dist/*.whl --verbose \
     --extra-index-url https://download.pytorch.org/whl/cu$(echo $CUDA_VERSION | cut -d. -f1,2 | tr -d '.')
 
+# NOTE: upgrade pytorch_triton 3.3.1 due to support blackwell arch. (see: https://github.com/triton-lang/triton/pull/6771)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system --upgrade triton==3.3.1
+
 # If we need to build FlashInfer wheel before its release:
 # $ export FLASHINFER_ENABLE_AOT=1
 # $ # Note we remove 7.0 from the arch list compared to the list below, since FlashInfer only supports sm75+
@@ -279,6 +291,7 @@ COPY examples examples
 COPY benchmarks benchmarks
 COPY ./vllm/collect_env.py .
 
+
 RUN --mount=type=cache,target=/root/.cache/uv \
 . /etc/environment && \
 uv pip list
@@ -291,6 +304,10 @@ COPY requirements/build.txt requirements/build.txt
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system -r requirements/build.txt \
     --extra-index-url https://download.pytorch.org/whl/cu$(echo $CUDA_VERSION | cut -d. -f1,2 | tr -d '.')
+
+# NOTE: upgrade pytorch_triton 3.3.1 due to support blackwell arch. (see: https://github.com/triton-lang/triton/pull/6771)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system --upgrade triton==3.3.1
 
 #################### vLLM installation IMAGE ####################
 
@@ -316,6 +333,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     if [ "$CUDA_MAJOR" -ge 12 ]; then \
         uv pip install --system -r requirements/dev.txt; \
     fi
+
+# NOTE: upgrade pytorch_triton 3.3.1 due to support blackwell arch. (see: https://github.com/triton-lang/triton/pull/6771)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system --upgrade triton==3.3.1
 
 # install development dependencies (for testing)
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -355,6 +376,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     else \
         uv pip install --system accelerate hf_transfer 'modelscope!=1.15.0' 'bitsandbytes>=0.45.3' 'timm==0.9.10' boto3 runai-model-streamer runai-model-streamer[s3]; \
     fi
+
+# NOTE: upgrade pytorch_triton 3.3.1 due to support blackwell arch. (see: https://github.com/triton-lang/triton/pull/6771)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system --upgrade triton==3.3.1
 
 ENV VLLM_USAGE_SOURCE production-docker-image
 
